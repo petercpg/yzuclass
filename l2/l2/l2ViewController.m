@@ -18,7 +18,7 @@
 {
     [super viewDidLoad];
 	// Do any additional setup after loading the view, typically from a nib.
-    screen.text = 0;
+    screen.text = @"0";
     screenTemp = [[NSMutableString alloc] init];
     //float tmpVal;
     calcway = 0;
@@ -43,46 +43,23 @@
     if(clickedBtn.tag<=9){ //Numbers
         [result appendFormat:@"%i", clickedBtn.tag]; //result is the button that user clicked
         [screenTemp appendString:result]; //screenTemp is the buffer of what user clicks
+        screen.text = screenTemp;
     }
+    
     switch (clickedBtn.tag) {
         case 10://Decimal
             if(behindTheDecimal != TRUE) {
+                if(fmod([screenTemp floatValue],1)>0){
+                    behindTheDecimal=TRUE;
+                }
                 behindTheDecimal = TRUE;
                 [screenTemp appendFormat:@"."];
             }
             break;
         case 90://Clear
-            screenTemp=[NSMutableString stringWithString:@""];
+            [screenTemp setString:@""];
             screen.text=@"0";
-            break;
-        default:
-            break;
-    }
-    
-    switch(clickedBtn.tag) {
-        case 91://+
-            tmpVal += [screenTemp floatValue]; //tmpVal is the temp buffer of total num
-            [screenTemp setString:@""];
-            calcway = 1;
-            screen.text = @"0";
-            break;
-        case 92://-
-            tmpVal -= [screenTemp floatValue];
-            [screenTemp setString:@""];
-            calcway = 2;
-            screen.text = @"0";
-            break;
-        case 93://*
-            tmpVal *= [screenTemp floatValue];
-            [screenTemp setString:@""];
-            screen.text = @"0";
-            calcway = 3;
-            break;
-        case 94://divide
-            tmpVal /= [screenTemp floatValue];
-            [screenTemp setString:@""];
-            screen.text = @"0";
-            calcway = 4;
+            tmpVal=0;
             break;
         case 99://do calc
             switch(calcway){
@@ -98,16 +75,62 @@
                 case 4:
                     tmpVal /= [screenTemp floatValue];
                     break;
-            }		
+            }
             screen.text = [NSString stringWithFormat:@"%f", tmpVal];
-            [screenTemp setString:@""];
             calcway=0;
             break;
+
     }
-    screen.text = [NSString stringWithFormat:@"%@", screenTemp];
+    
+    if (clickedBtn.tag>=91 && clickedBtn.tag<=94){
+        switch (calcway) {
+            case 0:
+                tmpVal = [screenTemp floatValue];
+                break;
+            case 1:
+                tmpVal += [screenTemp floatValue]; //tmpVal is the temp buffer of total num
+                break;
+            case 2:
+                tmpVal -= [screenTemp floatValue];
+                break;
+            case 3:
+                tmpVal *= [screenTemp floatValue];
+                break;
+            case 4:
+                tmpVal /= [screenTemp floatValue];
+                break;
+        }
+        switch(clickedBtn.tag) {
+            case 91://+
+                calcway=1;
+                [screenTemp setString:@""];
+                screen.text = [NSString stringWithFormat:@"%f", tmpVal];
+                behindTheDecimal=FALSE;
+                break;
+            case 92://-
+                calcway=2;
+                [screenTemp setString:@""];
+                screen.text = [NSString stringWithFormat:@"%f", tmpVal];
+                behindTheDecimal=FALSE;
+                break;
+            case 93://*
+                calcway=3;
+                [screenTemp setString:@""];
+                screen.text = [NSString stringWithFormat:@"%f", tmpVal];
+                behindTheDecimal=FALSE;
+                break;
+            case 94://divide
+                calcway=4;
+                [screenTemp setString:@""];
+                screen.text = [NSString stringWithFormat:@"%f", tmpVal];
+                behindTheDecimal=FALSE;
+                break;
+        }
+    }
     NSLog(@"screenTemp= %@", screenTemp);
     NSLog(@"calcway= %i", calcway);
     NSLog(@"tmpVal= %f", tmpVal);
     [result release];
 }
+
 @end
